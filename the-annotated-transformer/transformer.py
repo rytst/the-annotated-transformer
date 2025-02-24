@@ -57,6 +57,7 @@ def clones(module, N: int):
 
 
 class Encoder(nn.Module):
+    # N = 6 in `Attention Is All You Need`
     def __init__(self, layer, N: int) -> None:
         super().__init__()
         self.layers = clones(layer, N)
@@ -68,10 +69,12 @@ class Encoder(nn.Module):
 
         return self.norm(x)
 
-
+# Layer Normalization
 class LayerNorm(nn.Module):
     def __init__(self, features, eps: float =1e-6) -> None:
         super().__init__()
+
+        # `a_2` and `b_2` are learnable affine transform parameters
         self.a_2 = nn.Parameter(torch.ones(features))
         self.b_2 = nn.Parameter(torch.zeros(features))
         self.eps: float = eps
@@ -90,6 +93,7 @@ class SublayerConnection(nn.Module):
         self.dropout = nn.Dropout(dropout)
 
     def forward(self, x, sublayer):
+        # Residual Connection
         return x + self.dropout(sublayer(self.norm(x)))
 
 

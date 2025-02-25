@@ -1,4 +1,5 @@
 import copy
+import math
 
 import torch
 import torch.nn as nn
@@ -180,6 +181,43 @@ def subsequent_mask(size: int):
     # Return `size` x `size` matrix
     return subsequent_mask == 0
 
+
+#############
+# Attention #
+#############
+
+# Scaled Dot Product Attention
+def attention(query, key, value, mask=None, dropout=None):
+    d_k = query.size(-1)
+
+    scores = torch.matmul(query, key.transpose(-2, -1)) / math.sqrt(d_k)
+
+    if mask is not None:
+        scores = scores.masked_fill(mask == 0, -1e9)
+
+    p_attn = scores.softmax(dim=-1)
+
+    if dropout is not None:
+        p_attn = dropout(p_attn)
+
+    return torch.matmul(p_attn, value), p_attn
+
+# TODO: Multi Headed Attention
+
+
+#######################################
+# Position-wise Feed-Forward Networks #
+#######################################
+
+class PositionwiseFeedForward(nn.Module):
+    def __init__(self, d_model, d_ff, dropout: float =0.1) -> None:
+        super().__init__()
+        self.w_1 = nn.Linear(d_model, d_ff)
+        self.w_2 = nn.Linear(d_ff, d_model)
+        self.dropout = nn.Dropout(dropout)
+
+    def forward(self, x):
+        return self.w_2(self.dropout(self.w_1(x).relu()))
 
 
 

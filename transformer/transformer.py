@@ -41,7 +41,7 @@ class EncoderDecoder(nn.Module):
         )
 
 class Generator(nn.Module):
-    def __init__(self, d_model, vocab) -> None:
+    def __init__(self, d_model: int, vocab: int) -> None:
         super().__init__()
         self.proj = nn.Linear(d_model, vocab)
 
@@ -216,7 +216,6 @@ def attention(query, key, value, mask=None, dropout=None):
 
 #
 # - The linear transformations are the same across different positions
-# 
 # - They use different parameters from layer to layer
 #
 
@@ -225,7 +224,7 @@ def attention(query, key, value, mask=None, dropout=None):
 # dim(inner-layer) = 2048
 #
 class PositionwiseFeedForward(nn.Module):
-    def __init__(self, d_model, d_ff, dropout: float =0.1) -> None:
+    def __init__(self, d_model: int, d_ff: int, dropout: float =0.1) -> None:
         super().__init__()
         self.w_1 = nn.Linear(d_model, d_ff)
         self.w_2 = nn.Linear(d_ff, d_model)
@@ -235,4 +234,48 @@ class PositionwiseFeedForward(nn.Module):
         return self.w_2(self.dropout(self.w_1(x).relu()))
 
 
+##########################
+# Embeddings and Softmax #
+##########################
 
+#
+# Convert input tokens and output tokens
+# to vectors of dimension `d_model`
+# In `Attention Is All You Need`, d_model = 512
+#
+class Embeddings(nn.Module):
+    def __init__(self, d_model: int, vocab: int) -> None:
+        super().__init__()
+
+        # A simple lookup table that stores embeddings
+        # of a fixed dictionary and size
+        self.lut = nn.Embeddings(
+            num_embeddings=vocab,
+            embedding_dim=d_model
+        )
+        self.d_model: int = d_model
+
+    def forward(self, x):
+        return self.lut(x) * math.sqrt(self.d_model)
+
+
+#######################
+# Positional Encoding #
+#######################
+
+#
+# To inject some information about the relative or absolute position
+# of the tokens in the sequence
+#
+# Add `Positional Encodings` to the input embeddings
+# at the bottoms of encoder and decoder stacks
+#
+
+# TODO: Positional Encoding
+
+
+##############
+# Full Model #
+##############
+
+# TODO: Full Model

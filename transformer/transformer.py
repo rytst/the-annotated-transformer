@@ -209,6 +209,21 @@ def attention(query, key, value, mask=None, dropout=None):
 # Position-wise Feed-Forward Networks #
 #######################################
 
+#
+# The Position-wise Feed-Forward Network is applied to
+# each position separately and indentically
+#
+
+#
+# - The linear transformations are the same across different positions
+# 
+# - They use different parameters from layer to layer
+#
+
+#
+# dim(input) = dim(output) = 512
+# dim(inner-layer) = 2048
+#
 class PositionwiseFeedForward(nn.Module):
     def __init__(self, d_model, d_ff, dropout: float =0.1) -> None:
         super().__init__()

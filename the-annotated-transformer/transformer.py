@@ -153,16 +153,31 @@ class DecoderLayer(nn.Module):
         x = self.sublayer[1](x, lambda x: self.src_attn(x, m, m, src_mask))
         return self.sublayer[2](x, self.feed_forward)
 
+# Masking subsequent positions
+#
+# Position i can depend only on the known outputs at position less than i
 def subsequent_mask(size: int):
     attn_shape = (1, size, size)
 
-    subsequent_mask = torch.triu( # Returns the uppper triangular
-        torch.ones(attn_shape),   # part of a matrix
+    # torch.triu(): Returns the `upper triangular part of a matrix`
+    # The upper triangular part of the matrix is defined as the elements on and above the diagonal
+    #
+    # `diagonal` parameter controls which diagonal to consider
+    #
+    #  diagonal=-1 |  diagonal=0 |  diagonal=1
+    #   1 1 1 1    |   1 1 1 1   |   0 1 1 1
+    #   1 1 1 1    |   0 1 1 1   |   0 0 1 1
+    #   0 1 1 1    |   0 0 1 1   |   0 0 0 1
+    #   0 0 1 1    |   0 0 0 1   |   0 0 0 0
+    #
+    subsequent_mask = torch.triu(
+        torch.ones(attn_shape),
         diagonal=1
     ).type(
         torch.uint8
     )
 
+    # Return `size` x `size` matrix
     return subsequent_mask == 0
 
 
